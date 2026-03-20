@@ -17,6 +17,7 @@
  * @property {string}     title         — short label (required)
  * @property {string}     body          — main text content
  * @property {string|null} imageData    — base64 data URL of image (nullable)
+ * @property {string|null} audioData    — base64 data URL of audio recording (nullable)
  * @property {string[]}   tags          — array of tag IDs
  * @property {string[]}   links         — array of Note IDs this note links TO
  * @property {NoteStage}  stage         — cognitive maturity stage
@@ -63,6 +64,7 @@ export function createNote(data = {}) {
     title:            data.title         ?? '',
     body:             data.body          ?? '',
     imageData:        data.imageData     ?? null,
+    audioData:        data.audioData     ?? null,
     tags:             data.tags          ?? [],
     links:            data.links         ?? [],
     stage:            data.stage         ?? 'seed',

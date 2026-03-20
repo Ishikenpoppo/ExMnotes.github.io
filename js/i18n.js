@@ -101,6 +101,11 @@ export const LANG_DICT = {
     editorImage:      'Immagine',
     editorChangeImage:'Sostituisci',
     editorRemoveImage:'Rimuovi',
+    editorAudio:      'Vocale',
+    editorRecord:     'Registra',
+    editorStopRecord: 'Stop',
+    editorRemoveAudio:'Rimuovi audio',
+    editorRecording:  'Registrazione…',
 
     // Toast
     toastSaved:       'Salvato',
@@ -208,6 +213,11 @@ export const LANG_DICT = {
     editorImage:      'Image',
     editorChangeImage:'Replace',
     editorRemoveImage:'Remove',
+    editorAudio:      'Voice',
+    editorRecord:     'Record',
+    editorStopRecord: 'Stop',
+    editorRemoveAudio:'Remove audio',
+    editorRecording:  'Recording…',
 
     toastSaved:       'Saved',
     toastDeleted:     'Deleted',

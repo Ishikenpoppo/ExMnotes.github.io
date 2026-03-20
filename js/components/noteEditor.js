@@ -24,12 +24,13 @@ export async function openNoteEditor(noteId = null, prefill = {}) {
 
   const data = note
     ? { ...note }
-    : { title: prefill.title || '', body: prefill.body || '', tags: [], links: [], stage: 'seed', imageData: null };
+    : { title: prefill.title || '', body: prefill.body || '', tags: [], links: [], stage: 'seed', imageData: null, audioData: null };
 
   // Local mutable state
   let localTags  = [...(data.tags  || [])];
   let localLinks = [...(data.links || [])];
   let localImage = data.imageData || null;
+  let localAudio = data.audioData || null;
   let localStage = data.stage || 'seed';
   let localTitle = data.title || '';
   let localBody  = data.body  || '';
@@ -78,6 +79,64 @@ export async function openNoteEditor(noteId = null, prefill = {}) {
     if (e.target.closest('[data-action="remove-image"]')) {
       localImage = null;
       mc.querySelector('.image-preview')?.remove();
+    }
+    if (e.target.closest('[data-action="remove-audio"]')) {
+      localAudio = null;
+      mc.querySelector('#audio-player-wrap')?.remove();
+    }
+  });
+
+  /* ── Audio recording ── */
+  let _mediaRecorder = null;
+  let _audioChunks   = [];
+  let _recInterval   = null;
+  let _recSecs       = 0;
+
+  const recordBtn = mc.querySelector('#editor-record-btn');
+  const recTimer  = mc.querySelector('#record-timer');
+
+  recordBtn?.addEventListener('click', async () => {
+    if (_mediaRecorder && _mediaRecorder.state === 'recording') {
+      _mediaRecorder.stop();
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        _audioChunks = [];
+        _recSecs = 0;
+        _mediaRecorder = new MediaRecorder(stream);
+        _mediaRecorder.ondataavailable = (ev) => {
+          if (ev.data.size > 0) _audioChunks.push(ev.data);
+        };
+        _mediaRecorder.onstop = () => {
+          stream.getTracks().forEach((trk) => trk.stop());
+          clearInterval(_recInterval);
+          const blob = new Blob(_audioChunks, { type: _mediaRecorder.mimeType || 'audio/webm' });
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            localAudio = re.target.result;
+            renderAudioPlayer(mc, localAudio);
+          };
+          reader.readAsDataURL(blob);
+          recordBtn.classList.remove('recording');
+          recordBtn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg> ${t('editorRecord')}`;
+          recTimer.style.display = 'none';
+          recTimer.textContent = '0:00';
+        };
+        _mediaRecorder.start(100);
+        recordBtn.classList.add('recording');
+        recordBtn.innerHTML = `<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 6h12v12H6z"/></svg> ${t('editorStopRecord')}`;
+        recTimer.style.display = 'inline';
+        _recInterval = setInterval(() => {
+          _recSecs++;
+          if (_recSecs >= 120) { _mediaRecorder?.stop(); return; }
+          const m = Math.floor(_recSecs / 60);
+          const s = _recSecs % 60;
+          recTimer.textContent = `${m}:${String(s).padStart(2, '0')}`;
+        }, 1000);
+      } catch (err) {
+        console.error('Mic error', err);
+        showToast(t('toastError'), 'error');
+      }
     }
   });
 
@@ -153,6 +212,7 @@ export async function openNoteEditor(noteId = null, prefill = {}) {
         links:     localLinks,
         stage:     localStage,
         imageData: localImage,
+        audioData: localAudio,
       };
       if (isNew) {
         const saved = await store.saveNote(payload);
@@ -264,6 +324,25 @@ function buildHTML(data, allNotes, tagsMap, backlinks, outgoing) {
       </label>
     </div>
 
+    <!-- Audio -->
+    <div class="field-group" style="margin-bottom:var(--sp-4);">
+      <span class="section-label">${t('editorAudio')}</span>
+      ${data.audioData ? `
+        <div class="audio-player-wrap" id="audio-player-wrap">
+          <audio class="audio-player" controls src="${data.audioData}"></audio>
+          <button class="icon-btn" data-action="remove-audio" aria-label="${t('editorRemoveAudio')}">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </button>
+        </div>` : ''}
+      <div class="audio-controls" style="display:flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-2);">
+        <button class="btn btn-secondary btn-sm record-btn" id="editor-record-btn">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+          ${t('editorRecord')}
+        </button>
+        <span class="record-timer text-xs text-faint" id="record-timer" style="display:none;">0:00</span>
+      </div>
+    </div>
+
     <!-- Stage -->
     <div class="field-group" style="margin-bottom:var(--sp-4);">
       <span class="section-label">${t('editorStage')}</span>
@@ -307,6 +386,21 @@ function buildHTML(data, allNotes, tagsMap, backlinks, outgoing) {
 }
 
 /* ── Partial re-renders ── */
+function renderAudioPlayer(mc, audioData) {
+  mc.querySelector('#audio-player-wrap')?.remove();
+  if (!audioData) return;
+  const wrap = document.createElement('div');
+  wrap.id = 'audio-player-wrap';
+  wrap.className = 'audio-player-wrap';
+  wrap.innerHTML = `
+    <audio class="audio-player" controls src="${audioData}"></audio>
+    <button class="icon-btn" data-action="remove-audio" aria-label="${t('editorRemoveAudio')}">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+  `;
+  mc.querySelector('.audio-controls')?.before(wrap);
+}
+
 function renderImagePreview(mc, imageData) {
   mc.querySelector('.image-preview')?.remove();
   if (!imageData) return;

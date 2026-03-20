@@ -16,6 +16,7 @@ let _body      = '';
 let _tags      = [];   // tag IDs
 let _links     = [];   // note IDs
 let _imageData = null;
+let _audioData = null;
 
 export function render(container) {
   _container = container;
@@ -31,6 +32,7 @@ function reset() {
   _title = _body = '';
   _tags  = []; _links = [];
   _imageData = null;
+  _audioData = null;
 }
 
 async function buildView(container) {
@@ -62,6 +64,9 @@ async function buildView(container) {
 
       <!-- Image preview area -->
       <div id="image-area"></div>
+
+      <!-- Audio preview area -->
+      <div id="audio-area"></div>
 
       <!-- ── Stage selector ── -->
       <div class="section">
@@ -103,7 +108,7 @@ async function buildView(container) {
 
     </div>
 
-    <!-- Footer: image + save -->
+    <!-- Footer: image + mic + save -->
     <div class="view-footer" style="display:flex;align-items:center;gap:var(--sp-3);">
       <label class="icon-btn" title="${t('capturePhoto')}" style="cursor:pointer;">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
@@ -111,6 +116,9 @@ async function buildView(container) {
         </svg>
         <input type="file" id="capture-img-input" accept="image/*" capture="environment" style="display:none;" />
       </label>
+      <button class="icon-btn capture-record-btn" id="capture-record-btn" title="${t('editorAudio')}">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      </button>
       <button id="btn-capture-save" class="btn btn-primary" style="flex:1;">
         ${t('captureSave')}
       </button>
@@ -135,6 +143,8 @@ function _bindEvents(container, allNotes) {
   const linkSug     = container.querySelector('#link-suggestions');
   const selLinks    = container.querySelector('#selected-links');
   const imageArea   = container.querySelector('#image-area');
+  const audioArea   = container.querySelector('#audio-area');
+  const capRecBtn   = container.querySelector('#capture-record-btn');
 
   // Reset local state
   _selectedStage = 'seed';
@@ -229,6 +239,61 @@ function _bindEvents(container, allNotes) {
     });
   });
 
+  // Audio recording
+  let _capMediaRecorder = null;
+  let _capAudioChunks   = [];
+  let _capRecInterval   = null;
+  let _capRecSecs       = 0;
+
+  capRecBtn?.addEventListener('click', async () => {
+    if (_capMediaRecorder && _capMediaRecorder.state === 'recording') {
+      _capMediaRecorder.stop();
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        _capAudioChunks = [];
+        _capRecSecs = 0;
+        _capMediaRecorder = new MediaRecorder(stream);
+        _capMediaRecorder.ondataavailable = (ev) => {
+          if (ev.data.size > 0) _capAudioChunks.push(ev.data);
+        };
+        _capMediaRecorder.onstop = () => {
+          stream.getTracks().forEach((trk) => trk.stop());
+          clearInterval(_capRecInterval);
+          const blob = new Blob(_capAudioChunks, { type: _capMediaRecorder.mimeType || 'audio/webm' });
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            _audioData = re.target.result;
+            audioArea.innerHTML = `
+              <div class="audio-player-wrap" style="margin-bottom:var(--sp-2);">
+                <audio class="audio-player" controls src="${_audioData}"></audio>
+                <button class="icon-btn" id="remove-audio-preview">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+              </div>`;
+            audioArea.querySelector('#remove-audio-preview')?.addEventListener('click', () => {
+              _audioData = null;
+              audioArea.innerHTML = '';
+            });
+          };
+          reader.readAsDataURL(blob);
+          capRecBtn.classList.remove('recording');
+          capRecBtn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>`;
+        };
+        _capMediaRecorder.start(100);
+        capRecBtn.classList.add('recording');
+        capRecBtn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>`;
+        _capRecInterval = setInterval(() => {
+          _capRecSecs++;
+          if (_capRecSecs >= 120) { _capMediaRecorder?.stop(); return; }
+        }, 1000);
+      } catch (err) {
+        console.error('Mic error', err);
+        showToast(t('toastError'), 'error');
+      }
+    }
+  });
+
   // Image
   imgInput?.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -266,6 +331,7 @@ function _bindEvents(container, allNotes) {
         links:     [..._selectedLinks],
         stage:     _selectedStage,
         imageData: _imageData,
+        audioData: _audioData,
       });
       await Promise.all([..._selectedLinks].map((l) => store.linkNotes(note.id, l)));
       showToast(t('captureSaved'), 'success');
