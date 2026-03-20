@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Genera Icone — ExMnotes</title>
+  <style>
+    body { font-family: system-ui; background: #1a1a2e; color: #e8e8f0; padding: 2rem; }
+    h1 { color: #a78bfa; }
+    p { color: #9999bb; margin-bottom: 1rem; }
+    .grid { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0; }
+    canvas { border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    a { display: block; background: #7c6af7; color: white; padding: .5rem 1rem; border-radius: 8px; text-decoration: none; margin-top: .5rem; font-size: .85rem; text-align: center; }
+    a:hover { background: #a78bfa; }
+    .card { display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+    .card span { font-size: .75rem; color: #9999bb; }
+    button#gen { background: #7c6af7; color: white; border: none; border-radius: 8px; padding: .75rem 2rem; font-size: 1rem; cursor: pointer; margin-bottom: 1.5rem; }
+    .success { color: #34d399; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>ExMnotes — Genera Icone PNG</h1>
+  <p>Apri questa pagina nel browser. Premi il pulsante per generare le icone PNG da <code>icon.svg</code>. Poi scarica ogni icona e salvala in <code>assets/icons/</code>.</p>
+  
+  <button id="gen">🎨 Genera Icone</button>
+  
+  <div class="grid" id="grid"></div>
+  
+  <script>
+    const SIZES = [72, 96, 128, 192, 512];
+    
+    document.querySelector('#gen').addEventListener('click', async () => {
+      const grid = document.querySelector('#grid');
+      grid.innerHTML = '';
+      
+      // Load SVG from same directory
+      const resp = await fetch('./icon.svg');
+      const svgText = await resp.text();
+      const blob = new Blob([svgText], { type: 'image/svg+xml' });
+      const url  = URL.createObjectURL(blob);
+      
+      for (const size of SIZES) {
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        
+        await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0, size, size);
+            resolve();
+          };
+          img.src = url;
+        });
+        
+        const dataURL  = canvas.toDataURL('image/png');
+        const filename = `icon-${size}.png`;
+        
+        const card = document.createElement('div');
+        card.className = 'card';
+        const label = document.createElement('span');
+        label.textContent = `${size}×${size}`;
+        const a = document.createElement('a');
+        a.href     = dataURL;
+        a.download = filename;
+        a.textContent = `⬇ Scarica ${filename}`;
+        
+        card.appendChild(canvas);
+        card.appendChild(label);
+        card.appendChild(a);
+        grid.appendChild(card);
+      }
+      
+      URL.revokeObjectURL(url);
+      
+      const msg = document.createElement('p');
+      msg.className = 'success';
+      msg.textContent = '✓ Icone pronte. Scaricale e mettile in assets/icons/.';
+      grid.after(msg);
+    });
+  </script>
+</body>
+</html>

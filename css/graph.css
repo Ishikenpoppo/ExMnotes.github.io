@@ -1,0 +1,134 @@
+/* =============================================================
+   ExMnotes — Graph View
+   ============================================================= */
+
+.graph-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 30% 30%, rgba(124,106,247,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 70%, rgba(52,211,153,0.04) 0%, transparent 60%),
+              var(--bg);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── SVG canvas ── */
+#graph-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Edges ── */
+.graph-edge {
+  stroke: var(--border-2);
+  stroke-width: 1.5;
+  fill: none;
+  transition: stroke var(--dur-base), stroke-opacity var(--dur-base);
+  pointer-events: none;
+}
+.graph-edge.highlighted {
+  stroke: var(--accent-2);
+  stroke-opacity: 0.8;
+  stroke-width: 2;
+}
+.graph-edge-label {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  fill: var(--text-3);
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* ── Nodes ── */
+.graph-node {
+  cursor: pointer;
+  transition: filter var(--dur-base);
+}
+.graph-node:active { filter: brightness(1.3); }
+
+.graph-node-circle {
+  transition: r var(--dur-base) var(--ease-spring),
+              fill var(--dur-base),
+              stroke-opacity var(--dur-base);
+}
+.graph-node.seed   .graph-node-circle { fill: rgba(96,165,250,0.2);  stroke: var(--stage-seed);   }
+.graph-node.sprout .graph-node-circle { fill: rgba(52,211,153,0.2);  stroke: var(--stage-sprout); }
+.graph-node.mature .graph-node-circle { fill: rgba(240,165,0,0.2);   stroke: var(--stage-mature); }
+
+.graph-node-circle {
+  stroke-width: 2;
+  stroke-opacity: 0.8;
+}
+.graph-node.selected .graph-node-circle {
+  stroke-opacity: 1;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.graph-node-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--text);
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+/* ── Node hovercard ── */
+.graph-hovercard {
+  position: absolute;
+  background-color: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  max-width: 240px;
+  z-index: 20;
+  pointer-events: all;
+  animation: hovercard-in var(--dur-base) var(--ease-out) both;
+}
+@keyframes hovercard-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+.hovercard-title {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--sp-2);
+}
+.hovercard-body {
+  font-size: var(--text-xs);
+  color: var(--text-2);
+  line-height: var(--lh-normal);
+  margin-bottom: var(--sp-3);
+}
+.hovercard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Graph empty state ── */
+.graph-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  text-align: center;
+  padding: var(--sp-8);
+  pointer-events: none;
+}
