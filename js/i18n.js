@@ -114,6 +114,7 @@ export const LANG_DICT = {
     toastImported:    'Dati importati con successo',
     toastError:       'Errore imprevisto',
     toastCleared:     'Tutti i dati eliminati',
+    swUpdateReady:    'Nuova versione disponibile — aggiornamento in corso…',
 
     // Misc
     cancel:           'Annulla',
@@ -225,6 +226,7 @@ export const LANG_DICT = {
     toastImported:    'Data imported successfully',
     toastError:       'Unexpected error',
     toastCleared:     'All data cleared',
+    swUpdateReady:    'New version available — updating…',
 
     cancel:           'Cancel',
     confirm:          'Confirm',

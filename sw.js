@@ -1,5 +1,5 @@
 /* ExMnotes Service Worker — cache-first strategy */
-const CACHE_NAME = 'exmnotes-v2';
+const CACHE_NAME = 'exmnotes-v3';
 
 const PRECACHE_ASSETS = [
   './',
@@ -41,9 +41,17 @@ self.addEventListener('install', (event) => {
           cache.add(url).catch((err) => console.warn('[SW] Could not precache:', url, err))
         )
       );
-      return self.skipWaiting();
+      // Do NOT call skipWaiting() here — the client will send SKIP_WAITING
+      // when it is safe to activate the new version.
     })
   );
+});
+
+// Allow the client app to trigger activation of the waiting SW
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', (event) => {
