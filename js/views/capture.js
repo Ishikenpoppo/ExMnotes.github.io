@@ -269,15 +269,7 @@ function _bindEvents(container, allNotes) {
       });
       await Promise.all([..._selectedLinks].map((l) => store.linkNotes(note.id, l)));
       showToast(t('captureSaved'), 'success');
-      // Clear form
-      if (titleInput) titleInput.value = '';
-      if (bodyInput)  bodyInput.value  = '';
-      _title = _body = ''; _imageData = null;
-      _selectedTags.clear(); _selectedLinks.clear();
-      imageArea.innerHTML = '';
-      selLinks.innerHTML  = '';
-      container.querySelectorAll('.tag-chip.active').forEach((c) => c.classList.remove('active'));
-      titleInput?.focus();
+      navigate('#library');
     } catch (err) {
       console.error(err);
       showToast(t('toastError'), 'error');
