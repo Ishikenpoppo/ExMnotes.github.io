@@ -1,5 +1,5 @@
 /* ExMnotes Service Worker — cache-first strategy */
-const CACHE_NAME = 'exmnotes-v1';
+const CACHE_NAME = 'exmnotes-v2';
 
 const PRECACHE_ASSETS = [
   './',
