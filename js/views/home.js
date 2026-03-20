@@ -74,6 +74,12 @@ function buildHTML(stats) {
 
     <div class="view-body">
 
+      <!-- Epigraph -->
+      <div class="home-epigraph stagger-item">
+        <blockquote>&#8220;Where does the mind stop and the rest of the world?&#8221;</blockquote>
+        <cite>&#8212; Clark &amp; Chalmers, <em>The Extended Mind</em> (1998)</cite>
+      </div>
+
       <!-- Cognitive Snapshot -->
       <div class="section stagger-item">
         <span class="section-label">${t('homeCogSnapshot')}</span>

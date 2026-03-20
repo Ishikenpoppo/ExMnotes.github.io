@@ -443,6 +443,35 @@
   padding-left: calc(var(--sp-3) + 16px + var(--sp-2));
 }
 
+/* ── Home Epigraph ── */
+.home-epigraph {
+  padding: var(--sp-4) var(--sp-4) var(--sp-4) var(--sp-5);
+  border-left: 2px solid var(--accent);
+  opacity: 0.72;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.home-epigraph:hover {
+  opacity: 1;
+}
+.home-epigraph blockquote {
+  font-style: italic;
+  font-size: var(--text-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--text-2);
+  margin-bottom: var(--sp-2);
+}
+.home-epigraph cite {
+  display: block;
+  font-style: normal;
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  text-align: right;
+  letter-spacing: 0.02em;
+}
+.home-epigraph cite em {
+  font-style: italic;
+}
+
 /* ── Stat Card ── */
 .stat-card {
   background-color: var(--surface);
