@@ -3,7 +3,6 @@
    ============================================================= */
 
 import { renderBottomBar, setActiveTab } from './components/bottomBar.js';
-import { isModalOpen, closeModalFromBack } from './components/modal.js';
 
 const ROUTES = {
   home:    () => import('./views/home.js'),
@@ -102,11 +101,6 @@ export function initRouter() {
   renderBottomBar();
 
   window.addEventListener('popstate', () => {
-    // If a modal is open, close it instead of navigating
-    if (isModalOpen()) {
-      closeModalFromBack();
-      return;
-    }
     const hash = location.hash.replace('#', '') || 'home';
     _loadRoute(hash);
   });

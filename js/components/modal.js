@@ -18,28 +18,40 @@ const settingsContent  = document.getElementById('settings-content');
 /* ── History integration ── */
 let _modalHistoryCount = 0;   // how many modal-states are on the history stack
 let _closingFromPopstate = false; // guard: true when popstate is closing the modal
+let _skipNextPopstate = false;    // guard: true after manual close calls history.back()
 
-/**
- * Returns true if any modal overlay is currently open.
- */
-export function isModalOpen() {
+function _isModalOpen() {
   return overlay.classList.contains('open') ||
          settingsOverlay.classList.contains('open');
 }
 
-/**
- * Called by the router's popstate handler when a modal is open.
- * Closes the top-most modal WITHOUT calling history.back() again.
+/*
+ * Capture-phase popstate listener.
+ * Fires BEFORE the router's popstate handler.
+ * If a modal is open, close it and prevent the router from navigating.
+ * If popstate was triggered by our own history.back() (manual close), just swallow it.
  */
-export function closeModalFromBack() {
-  _closingFromPopstate = true;
-  if (overlay.classList.contains('open')) {
-    closeOverlay(overlay, drawer);
-  } else if (settingsOverlay.classList.contains('open')) {
-    closeOverlay(settingsOverlay, settingsOverlay.querySelector('.modal-drawer'));
+window.addEventListener('popstate', (e) => {
+  // Case 1: popstate fired because closeOverlay called history.back()
+  //         Modal is already closed — just swallow this event.
+  if (_skipNextPopstate) {
+    _skipNextPopstate = false;
+    e.stopImmediatePropagation();
+    return;
   }
-  _closingFromPopstate = false;
-}
+
+  // Case 2: user pressed the back button / gesture while a modal is open.
+  if (_isModalOpen()) {
+    _closingFromPopstate = true;
+    if (overlay.classList.contains('open')) {
+      closeOverlay(overlay, drawer);
+    } else if (settingsOverlay.classList.contains('open')) {
+      closeOverlay(settingsOverlay, settingsOverlay.querySelector('.modal-drawer'));
+    }
+    _closingFromPopstate = false;
+    e.stopImmediatePropagation(); // prevent router from navigating
+  }
+}, true); // ← capture phase so it fires before the router's bubble listener
 
 /* ── Drag to close ── */
 let startY = 0;
@@ -94,10 +106,11 @@ export function closeOverlay(overlayEl, drawerEl) {
   if (drawerEl) drawerEl.style.transform = '';
   document.body.style.overflow = '';
 
-  // If the modal was open and we're NOT being closed by popstate,
+  // If the modal was open and we're NOT being closed by the back button,
   // pop the history entry we pushed on open.
   if (wasOpen && !_closingFromPopstate && _modalHistoryCount > 0) {
     _modalHistoryCount--;
+    _skipNextPopstate = true; // swallow the popstate this will trigger
     history.back();
   } else if (_closingFromPopstate && _modalHistoryCount > 0) {
     _modalHistoryCount--;
