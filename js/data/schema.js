@@ -1,14 +1,14 @@
 /* =============================================================
    ExMnotes — Data Schemas (JSDoc types)
-   Clark & Chalmers Extended Mind — representational objects
+   Neural Console — Extended Mind representational objects
    ============================================================= */
 
 /**
  * @typedef {'seed'|'sprout'|'mature'} NoteStage
- * Cognitive maturity stages inspired by Zettelkasten and spaced repetition:
- *  - seed:   newly captured thought, unprocessed
- *  - sprout: connected and partially elaborated
- *  - mature: well-understood, richly connected, review interval > 14d
+ * Neural maturity stages (Spark → Synapse → Network):
+ *  - seed:   newly captured neural impulse (Spark)
+ *  - sprout: forming synaptic connections (Synapse)
+ *  - mature: consolidated neural network (Network)
  */
 
 /**
@@ -18,6 +18,8 @@
  * @property {string}     body          — main text content
  * @property {string|null} imageData    — base64 data URL of image (nullable)
  * @property {string|null} audioData    — base64 data URL of audio recording (nullable)
+ * @property {string|null} pdfData      — base64 data URL of attached PDF (nullable)
+ * @property {number}      pdfBookmark  — last-read page number (default: 1)
  * @property {string[]}   tags          — array of tag IDs
  * @property {string[]}   links         — array of Note IDs this note links TO
  * @property {NoteStage}  stage         — cognitive maturity stage
@@ -65,6 +67,8 @@ export function createNote(data = {}) {
     body:             data.body          ?? '',
     imageData:        data.imageData     ?? null,
     audioData:        data.audioData     ?? null,
+    pdfData:          data.pdfData       ?? null,
+    pdfBookmark:      data.pdfBookmark   ?? 1,
     tags:             data.tags          ?? [],
     links:            data.links         ?? [],
     stage:            data.stage         ?? 'seed',
@@ -98,7 +102,7 @@ export function createConnection(data = {}) {
  * @returns {Tag}
  */
 export function createTag(data = {}) {
-  const PALETTE = ['#7c6af7','#34d399','#f0a500','#60a5fa','#f87171','#a78bfa','#fb923c'];
+  const PALETTE = ['#00f0ff','#39ff9f','#ffb800','#bf5af2','#ff4466','#64dfdf','#ff8c42'];
   return {
     id:      data.id      ?? crypto.randomUUID(),
     name:    data.name    ?? '',

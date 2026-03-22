@@ -1,12 +1,12 @@
 {
-  "name": "ExMnotes — Mente Estesa",
+  "name": "ExMnotes — Neural Console",
   "short_name": "ExMnotes",
-  "description": "Laboratorio di mente estesa per note, connessioni e pensiero incarnato.",
+  "description": "Console neurale per la mente estesa. Note, sinapsi, rete di pensiero.",
   "start_url": "./index.html#home",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#1a1a2e",
-  "theme_color": "#1a1a2e",
+  "background_color": "#050510",
+  "theme_color": "#050510",
   "lang": "it",
   "categories": ["productivity", "education"],
   "icons": [

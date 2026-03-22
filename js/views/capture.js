@@ -7,6 +7,7 @@ import { t }             from '../i18n.js';
 import * as store        from '../store.js';
 import { showToast }     from '../components/toast.js';
 import { navigate }      from '../router.js';
+import { iconSpark, iconSynapse, iconNetwork, iconWarning, STAGE_ICONS } from '../components/icons.js';
 
 let _container = null;
 
@@ -17,6 +18,7 @@ let _tags      = [];   // tag IDs
 let _links     = [];   // note IDs
 let _imageData = null;
 let _audioData = null;
+let _pdfData   = null;
 
 export function render(container) {
   _container = container;
@@ -33,6 +35,7 @@ function reset() {
   _tags  = []; _links = [];
   _imageData = null;
   _audioData = null;
+  _pdfData   = null;
 }
 
 async function buildView(container) {
@@ -68,13 +71,16 @@ async function buildView(container) {
       <!-- Audio preview area -->
       <div id="audio-area"></div>
 
+      <!-- PDF preview area -->
+      <div id="pdf-area"></div>
+
       <!-- ── Stage selector ── -->
       <div class="section">
         <span class="section-label">${t('editorStage')}</span>
         <div class="stage-selector">
           ${['seed','sprout','mature'].map((s, i) => `
             <button class="stage-option ${s}${i === 0 ? ' selected' : ''}" data-stage="${s}">
-              <span class="stage-emoji">${s === 'seed' ? '🌱' : s === 'sprout' ? '🌿' : '🌳'}</span>
+              <span class="stage-emoji">${STAGE_ICONS[s]({ size: 24 })}</span>
               <span class="stage-name">${t(s === 'seed' ? 'stageSeed' : s === 'sprout' ? 'stageSprout' : 'stageMature')}</span>
             </button>`).join('')}
         </div>
@@ -119,6 +125,10 @@ async function buildView(container) {
       <button class="icon-btn capture-record-btn" id="capture-record-btn" title="${t('editorAudio')}">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
       </button>
+      <label class="icon-btn" title="Allega PDF" style="cursor:pointer;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM14 13h1V8.5h-1V13z"/></svg>
+        <input type="file" id="capture-pdf-input" accept="application/pdf" style="display:none;" />
+      </label>
       <button id="btn-capture-save" class="btn btn-primary" style="flex:1;">
         ${t('captureSave')}
       </button>
@@ -144,6 +154,8 @@ function _bindEvents(container, allNotes) {
   const selLinks    = container.querySelector('#selected-links');
   const imageArea   = container.querySelector('#image-area');
   const audioArea   = container.querySelector('#audio-area');
+  const pdfArea     = container.querySelector('#pdf-area');
+  const pdfInput    = container.querySelector('#capture-pdf-input');
   const capRecBtn   = container.querySelector('#capture-record-btn');
 
   // Reset local state
@@ -294,6 +306,28 @@ function _bindEvents(container, allNotes) {
     }
   });
 
+  // PDF
+  pdfInput?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (re) => {
+      _pdfData = re.target.result;
+      pdfArea.innerHTML = `
+        <div class="pdf-attached-strip" style="margin-bottom:var(--sp-2);">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM14 13h1V8.5h-1V13z"/></svg>
+          <span class="pdf-strip-name">${esc(file.name)}</span>
+          <button class="icon-btn" id="remove-pdf-preview">×</button>
+        </div>`;
+      pdfArea.querySelector('#remove-pdf-preview')?.addEventListener('click', () => {
+        _pdfData = null;
+        pdfArea.innerHTML = '';
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
   // Image
   imgInput?.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -320,7 +354,8 @@ function _bindEvents(container, allNotes) {
     _body  = bodyInput?.value.trim()  || '';
     if (!_title) {
       titleInput?.focus();
-      titleInput?.setAttribute('placeholder', '⚠ ' + t('capturePlaceholder'));
+      titleInput?.setAttribute('placeholder', t('capturePlaceholder'));
+      titleInput?.classList.add('field-input--error');
       return;
     }
     try {
@@ -332,6 +367,7 @@ function _bindEvents(container, allNotes) {
         stage:     _selectedStage,
         imageData: _imageData,
         audioData: _audioData,
+        pdfData:   _pdfData,
       });
       await Promise.all([..._selectedLinks].map((l) => store.linkNotes(note.id, l)));
       showToast(t('captureSaved'), 'success');

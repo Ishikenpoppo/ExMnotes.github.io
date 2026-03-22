@@ -8,6 +8,7 @@ import * as store           from '../store.js';
 import { GraphRenderer }    from '../components/graphRenderer.js';
 import { openNoteEditor }   from '../components/noteEditor.js';
 import { navigate }         from '../router.js';
+import { iconEmptyWeb, iconLink } from '../components/icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -41,7 +42,7 @@ async function loadData(container) {
     const empty = document.createElement('div');
     empty.className = 'graph-empty';
     empty.innerHTML = `
-      <span style="font-size:3rem;opacity:0.4;">🕸</span>
+      <span style="font-size:3rem;opacity:0.4;">${iconEmptyWeb()}</span>
       <p class="text-muted text-sm" style="max-width:24ch;text-align:center;">${t('graphEmpty').replace('\n','<br>')}</p>
       <button class="btn btn-primary btn-sm" id="btn-graph-capture">${t('navCapture')}</button>`;
     graphContainer?.appendChild(empty);
@@ -159,7 +160,7 @@ function showHovercard(container, note, tagsMap) {
     ${note.body ? `<div class="hovercard-body clamp-3">${esc(note.body)}</div>` : ''}
     <div class="hovercard-footer">
       <span class="stage-badge ${note.stage}">${t({ seed:'stageSeed', sprout:'stageSprout', mature:'stageMature' }[note.stage] || 'stageSeed')}</span>
-      <span class="link-badge">${linkCount > 0 ? `🔗 ${linkCount}` : ''}</span>
+      <span class="link-badge">${linkCount > 0 ? `${iconLink({ size: 14 })} ${linkCount}` : ''}</span>
       <button class="btn btn-sm btn-secondary" id="hc-open">${t('graphOpenNote')}</button>
     </div>`;
 

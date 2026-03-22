@@ -25,10 +25,8 @@
   grid-area: nav;
   height: calc(var(--bottom-bar-h) + var(--safe-bottom));
   padding-bottom: var(--safe-bottom);
-  background-color: var(--surface);
-  border-top: 1px solid var(--border);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background-color: transparent;
+  border-top: none;
   z-index: 100;
 }
 
@@ -50,6 +48,7 @@
   gap: var(--sp-3);
   padding: var(--sp-4) var(--sp-4) var(--sp-3);
   background-color: var(--bg);
+  background-image: var(--scanline);
   border-bottom: 1px solid var(--border);
   min-height: 56px;
 }
@@ -86,13 +85,14 @@
   padding-bottom: calc(var(--sp-3) + var(--safe-bottom));
   border-top: 1px solid var(--border);
   background-color: var(--surface);
+  background-image: var(--scanline);
 }
 
 /* ── Card Grid Layout ── */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--sp-3);
+  gap: var(--sp-4);
 }
 @media (min-width: 600px) {
   .card-grid {
@@ -153,6 +153,12 @@
 .empty-state .empty-icon {
   font-size: 3rem;
   opacity: 0.5;
+  color: var(--accent);
+}
+.empty-state .empty-icon svg {
+  width: 48px;
+  height: 48px;
+  filter: drop-shadow(0 0 8px var(--glow));
 }
 .empty-state p {
   font-size: var(--text-sm);
@@ -182,4 +188,5 @@
 .pagination-dot.active {
   background-color: var(--accent);
   transform: scale(1.4);
+  box-shadow: 0 0 6px var(--glow);
 }

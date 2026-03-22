@@ -3,33 +3,22 @@
    ============================================================= */
 
 import { t } from '../i18n.js';
+import { iconMind, iconArchive, iconCapture, iconGraph, iconReview } from './icons.js';
 
 const TABS = [
-  { id: 'home',    iconPath: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z', label: () => t('navHome') },
-  { id: 'library', iconPath: 'M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z', label: () => t('navLibrary') },
+  { id: 'home',    icon: () => iconMind({ size: 22, cls: 'tab-icon' }),    label: () => t('navHome') },
+  { id: 'library', icon: () => iconArchive({ size: 22, cls: 'tab-icon' }), label: () => t('navLibrary') },
   {
     id: 'capture',
     label: () => t('navCapture'),
     isFab: true,
-    iconPath: 'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z',
+    icon: () => iconCapture({ size: 22, fill: 'white', stroke: 'white' }),
   },
-  { id: 'graph',   iconPath: 'M17 12a5 5 0 1 0-10 0 5 5 0 0 0 10 0zM12 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-7 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm14 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4z', label: () => t('navGraph') },
-  { id: 'review',  iconPath: 'M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z', label: () => t('navReview') },
+  { id: 'graph',   icon: () => iconGraph({ size: 22, cls: 'tab-icon' }),   label: () => t('navGraph') },
+  { id: 'review',  icon: () => iconReview({ size: 22, cls: 'tab-icon' }),  label: () => t('navReview') },
 ];
 
 let _currentRoute = 'home';
-
-function buildIcon(path) {
-  return `<svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="${path}"/>
-  </svg>`;
-}
-
-function buildFabIcon(path) {
-  return `<svg viewBox="0 0 24 24" fill="white" width="22" height="22" aria-hidden="true">
-    <path d="${path}"/>
-  </svg>`;
-}
 
 export function renderBottomBar() {
   const nav = document.getElementById('bottom-bar');
@@ -43,7 +32,7 @@ export function renderBottomBar() {
           data-route="${tab.id}"
           aria-label="${tab.label()}"
           aria-current="${_currentRoute === tab.id ? 'page' : 'false'}">
-          <div class="fab-circle" aria-hidden="true">${buildFabIcon(tab.iconPath)}</div>
+          <div class="fab-circle" aria-hidden="true">${tab.icon()}</div>
           <span class="tab-label">${tab.label()}</span>
         </button>`;
       }
@@ -52,7 +41,7 @@ export function renderBottomBar() {
         data-route="${tab.id}"
         aria-label="${tab.label()}"
         aria-current="${_currentRoute === tab.id ? 'page' : 'false'}">
-        ${buildIcon(tab.iconPath)}
+        ${tab.icon()}
         <span class="tab-label">${tab.label()}</span>
       </button>`;
     }).join('')

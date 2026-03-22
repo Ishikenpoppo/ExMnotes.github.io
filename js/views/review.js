@@ -7,6 +7,7 @@ import { t, formatDate }  from '../i18n.js';
 import * as store         from '../store.js';
 import { showToast }      from '../components/toast.js';
 import { openNoteEditor } from '../components/noteEditor.js';
+import { iconHard, iconOk, iconEasy, iconBrainResting } from '../components/icons.js';
 
 let _queue      = [];
 let _current    = 0;
@@ -87,9 +88,9 @@ function renderCurrent(container) {
 
       <!-- Action buttons -->
       <div class="review-actions" id="review-actions">
-        <button class="btn btn-hard"  data-quality="0">${t('reviewHard')} 😓</button>
-        <button class="btn btn-ok"    data-quality="1">${t('reviewOk')} 🙂</button>
-        <button class="btn btn-easy"  data-quality="2">${t('reviewEasy')} 🚀</button>
+        <button class="btn btn-hard"  data-quality="0">${iconHard({ size: 18 })} ${t('reviewHard')}</button>
+        <button class="btn btn-ok"    data-quality="1">${iconOk({ size: 18 })} ${t('reviewOk')}</button>
+        <button class="btn btn-easy"  data-quality="2">${iconEasy({ size: 18 })} ${t('reviewEasy')}</button>
       </div>
 
       <!-- Card count -->
@@ -149,7 +150,7 @@ function renderEmpty(container) {
     </div>
     <div class="view-body" style="align-items:center;justify-content:center;text-align:center;gap:var(--sp-6);">
       <div class="celebration">
-        <div class="big-emoji">🧠</div>
+        <div class="big-emoji">${iconBrainResting()}</div>
         <h2>${t('reviewEmpty')}</h2>
         <p class="text-muted" style="max-width:26ch;line-height:var(--lh-relaxed);">${t('reviewEmptyBody').replace('\n','<br>')}</p>
       </div>
@@ -166,7 +167,7 @@ function launchConfetti(canvas) {
   const ctx = canvas.getContext('2d');
   canvas.width  = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
-  const colors = ['#7c6af7','#34d399','#f0a500','#60a5fa','#f87171'];
+  const colors = ['#00f0ff','#39ff9f','#ffb800','#bf5af2','#ff4466'];
   const particles = Array.from({ length: 55 }, () => ({
     x:    Math.random() * canvas.width,
     y:    -20 - Math.random() * 100,

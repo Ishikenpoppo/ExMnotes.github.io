@@ -1,43 +1,45 @@
 /* =============================================================
    ExMnotes — Design Tokens
-   Clark & Chalmers Extended Mind Lab
+   Neural Console — Extended Mind Cyberpunk
    ============================================================= */
 
 :root {
   /* ── Palette: Night (Dark default) ── */
-  --night-bg:         #0d0d1a;
-  --night-surface:    #1a1a2e;
-  --night-surface-2:  #16213e;
-  --night-surface-3:  #0f3460;
-  --night-border:     rgba(255,255,255,0.08);
-  --night-border-2:   rgba(255,255,255,0.14);
-  --night-text:       #e8e8f0;
-  --night-text-2:     #9999bb;
-  --night-text-3:     #5e5e88;
-  --night-accent:     #7c6af7;
-  --night-accent-2:   #a78bfa;
-  --night-glow:       rgba(124,106,247,0.25);
-  --night-amber:      #f0a500;
-  --night-green:      #34d399;
-  --night-red:        #f87171;
-  --night-overlay:    rgba(0,0,0,0.65);
+  --night-bg:         #050510;
+  --night-surface:    #0a0a1e;
+  --night-surface-2:  #101030;
+  --night-surface-3:  #18184a;
+  --night-border:     rgba(0,240,255,0.08);
+  --night-border-2:   rgba(0,240,255,0.15);
+  --night-text:       #dfe0f0;
+  --night-text-2:     #7a7aaa;
+  --night-text-3:     #404070;
+  --night-accent:     #00f0ff;
+  --night-accent-2:   #bf5af2;
+  --night-glow:       rgba(0,240,255,0.22);
+  --night-glow-2:     rgba(191,90,242,0.22);
+  --night-amber:      #ffb800;
+  --night-green:      #39ff9f;
+  --night-red:        #ff4466;
+  --night-overlay:    rgba(2,2,8,0.78);
 
-  /* ── Palette: Day (Light) ── */
-  --day-bg:           #f5f0e8;
-  --day-surface:      #fffdf7;
-  --day-surface-2:    #ede8dd;
-  --day-surface-3:    #d6cfc2;
-  --day-border:       rgba(0,0,0,0.08);
-  --day-border-2:     rgba(0,0,0,0.15);
-  --day-text:         #1c1c2e;
-  --day-text-2:       #5c5c7a;
-  --day-text-3:       #9999aa;
-  --day-accent:       #5b48e8;
-  --day-accent-2:     #7c6af7;
-  --day-glow:         rgba(91,72,232,0.18);
-  --day-amber:        #d97706;
+  /* ── Palette: Day (Slate Light) ── */
+  --day-bg:           #e8ecf4;
+  --day-surface:      #f4f6fb;
+  --day-surface-2:    #dce1ee;
+  --day-surface-3:    #c5ccdd;
+  --day-border:       rgba(10,10,30,0.10);
+  --day-border-2:     rgba(10,10,30,0.18);
+  --day-text:         #0a0a1e;
+  --day-text-2:       #4a4a6e;
+  --day-text-3:       #8888a8;
+  --day-accent:       #0099aa;
+  --day-accent-2:     #8b3ec7;
+  --day-glow:         rgba(0,153,170,0.18);
+  --day-glow-2:       rgba(139,62,199,0.18);
+  --day-amber:        #c48a00;
   --day-green:        #059669;
-  --day-red:          #dc2626;
+  --day-red:          #cc2244;
   --day-overlay:      rgba(0,0,0,0.40);
 
   /* ── Semantic tokens (default: dark) ── */
@@ -53,18 +55,23 @@
   --accent:      var(--night-accent);
   --accent-2:    var(--night-accent-2);
   --glow:        var(--night-glow);
+  --glow-2:      var(--night-glow-2);
   --amber:       var(--night-amber);
   --green:       var(--night-green);
   --red:         var(--night-red);
   --overlay:     var(--night-overlay);
 
-  /* ── Stage colors ── */
-  --stage-seed:   #60a5fa;   /* blue  — seme */
-  --stage-sprout: #34d399;   /* green — germoglio */
-  --stage-mature: #f0a500;   /* amber — maturo */
+  /* ── Stage colors (neural metaphor: Spark → Synapse → Network) ── */
+  --stage-spark:    #00f0ff;   /* cyan — scintilla sinaptica */
+  --stage-synapse:  #bf5af2;   /* viola — sinapsi connessa */
+  --stage-network:  #ffb800;   /* ambra — rete consolidata */
+  /* Legacy aliases */
+  --stage-seed:     var(--stage-spark);
+  --stage-sprout:   var(--stage-synapse);
+  --stage-mature:   var(--stage-network);
 
   /* ── Typography ── */
-  --font-sans:   'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans:   'Space Grotesk', system-ui, -apple-system, sans-serif;
   --font-mono:   'JetBrains Mono', ui-monospace, monospace;
   --text-xs:     0.75rem;
   --text-sm:     0.875rem;
@@ -73,6 +80,7 @@
   --text-xl:     1.25rem;
   --text-2xl:    1.5rem;
   --text-3xl:    1.875rem;
+  --fw-light:    300;
   --fw-normal:   400;
   --fw-medium:   500;
   --fw-semibold: 600;
@@ -101,22 +109,33 @@
   --r-full: 9999px;
 
   /* ── Shadows ── */
-  --shadow-sm:  0 1px 3px rgba(0,0,0,0.25);
-  --shadow-md:  0 4px 16px rgba(0,0,0,0.3);
-  --shadow-lg:  0 8px 32px rgba(0,0,0,0.4);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.35);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.45);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.55);
   --shadow-glow: 0 0 20px var(--glow);
+  --shadow-glow-accent: 0 0 16px var(--glow), 0 0 40px var(--glow-2);
 
   /* ── Timing ── */
-  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring:cubic-bezier(0.34, 1.56, 0.64, 1);
-  --dur-fast:   150ms;
-  --dur-base:   250ms;
-  --dur-slow:   400ms;
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-expo:   cubic-bezier(0.87, 0, 0.13, 1);
+  --dur-fast:    120ms;
+  --dur-base:    220ms;
+  --dur-slow:    380ms;
 
   /* ── Layout ── */
   --bottom-bar-h:  64px;
   --safe-bottom:   env(safe-area-inset-bottom, 0px);
   --view-padding:  var(--sp-4);
+
+  /* ── Scan-line pattern (cyberpunk signature) ── */
+  --scanline: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,240,255,0.015) 2px,
+    rgba(0,240,255,0.015) 4px
+  );
 }
 
 /* ── Light theme override ── */
@@ -134,6 +153,7 @@
     --accent:    var(--day-accent);
     --accent-2:  var(--day-accent-2);
     --glow:      var(--day-glow);
+    --glow-2:    var(--day-glow-2);
     --amber:     var(--day-amber);
     --green:     var(--day-green);
     --red:       var(--day-red);
@@ -154,6 +174,7 @@ html[data-theme="light"] {
   --accent:    var(--day-accent);
   --accent-2:  var(--day-accent-2);
   --glow:      var(--day-glow);
+  --glow-2:    var(--day-glow-2);
   --amber:     var(--day-amber);
   --green:     var(--day-green);
   --red:       var(--day-red);
@@ -173,6 +194,7 @@ html[data-theme="dark"] {
   --accent:    var(--night-accent);
   --accent-2:  var(--night-accent-2);
   --glow:      var(--night-glow);
+  --glow-2:    var(--night-glow-2);
   --amber:     var(--night-amber);
   --green:     var(--night-green);
   --red:       var(--night-red);

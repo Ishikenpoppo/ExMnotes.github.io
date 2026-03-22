@@ -91,7 +91,7 @@ async function boot() {
     if (btn) showSettings();
   });
 
-  console.log('[ExMnotes] Booted — Extended Mind Laboratory ready ✦');
+  console.log('[ExMnotes] Booted — Neural Console ready ◆');
 }
 
 boot().catch(console.error);

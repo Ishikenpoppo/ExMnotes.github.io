@@ -8,6 +8,7 @@ import * as store         from '../store.js';
 import { renderNoteCard } from '../components/noteCard.js';
 import { openNoteEditor } from '../components/noteEditor.js';
 import { navigate }       from '../router.js';
+import { iconEmptyArchive } from '../components/icons.js';
 
 const PAGE_SIZE = 10;
 
@@ -78,7 +79,7 @@ function renderView(container) {
     <div class="view-body" id="library-body">
       ${_filtered.length === 0
         ? `<div class="empty-state stagger-item">
-            <span class="empty-icon">📚</span>
+            <span class="empty-icon">${iconEmptyArchive()}</span>
             <p>${t('libraryEmpty').replace('\n','<br>')}</p>
             <button class="btn btn-primary" id="btn-empty-new">+ ${t('navCapture')}</button>
           </div>`

@@ -1,8 +1,9 @@
 /* =============================================================
    ExMnotes — Base Reset
+   Neural Console — Cyberpunk Extended Mind
    ============================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -143,6 +144,7 @@ ul, ol { list-style: none; }
 .text-green    { color: var(--green); }
 .text-red      { color: var(--red); }
 
+.fw-light    { font-weight: var(--fw-light); }
 .fw-medium   { font-weight: var(--fw-medium); }
 .fw-semibold { font-weight: var(--fw-semibold); }
 .fw-bold     { font-weight: var(--fw-bold); }

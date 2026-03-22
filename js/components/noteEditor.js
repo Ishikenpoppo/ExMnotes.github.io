@@ -7,6 +7,8 @@ import { openModal, closeModal } from './modal.js';
 import { showToast }            from './toast.js';
 import * as store               from '../store.js';
 import { reloadView }           from '../router.js';
+import { openPdfViewer }        from './pdfViewer.js';
+import { iconPdf, iconBookmark, STAGE_ICONS } from './icons.js';
 
 /**
  * Open note editor modal
@@ -24,16 +26,18 @@ export async function openNoteEditor(noteId = null, prefill = {}) {
 
   const data = note
     ? { ...note }
-    : { title: prefill.title || '', body: prefill.body || '', tags: [], links: [], stage: 'seed', imageData: null, audioData: null };
+    : { title: prefill.title || '', body: prefill.body || '', tags: [], links: [], stage: 'seed', imageData: null, audioData: null, pdfData: null, pdfBookmark: 1 };
 
   // Local mutable state
-  let localTags  = [...(data.tags  || [])];
-  let localLinks = [...(data.links || [])];
-  let localImage = data.imageData || null;
-  let localAudio = data.audioData || null;
-  let localStage = data.stage || 'seed';
-  let localTitle = data.title || '';
-  let localBody  = data.body  || '';
+  let localTags     = [...(data.tags  || [])];
+  let localLinks    = [...(data.links || [])];
+  let localImage    = data.imageData    || null;
+  let localAudio    = data.audioData    || null;
+  let localPdf      = data.pdfData      ?? null;
+  let localPdfMark  = data.pdfBookmark  ?? 1;
+  let localStage    = data.stage || 'seed';
+  let localTitle    = data.title || '';
+  let localBody     = data.body  || '';
 
   const backlinks = conns.incoming;
 
@@ -64,6 +68,21 @@ export async function openNoteEditor(noteId = null, prefill = {}) {
   });
 
   /* ── Image handling ── */
+  /* ── PDF attachment ── */
+  mc.querySelector('#editor-pdf-input')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (re) => {
+      localPdf = re.target.result;
+      localPdfMark = 1;
+      renderPdfStrip(mc, file.name);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  /* ── Image handling ── */
   mc.querySelector('#editor-img-input')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -83,6 +102,16 @@ export async function openNoteEditor(noteId = null, prefill = {}) {
     if (e.target.closest('[data-action="remove-audio"]')) {
       localAudio = null;
       mc.querySelector('#audio-player-wrap')?.remove();
+    }
+    if (e.target.closest('[data-action="remove-pdf"]')) {
+      localPdf = null;
+      localPdfMark = 1;
+      renderPdfStrip(mc, null);
+    }
+    if (e.target.closest('[data-action="open-pdf"]')) {
+      if (!localPdf) return;
+      const previewNote = { ...data, pdfData: localPdf, pdfBookmark: localPdfMark, title: localTitle || data.title || 'PDF' };
+      openPdfViewer(previewNote, (page) => { localPdfMark = page; });
     }
   });
 
@@ -200,19 +229,22 @@ export async function openNoteEditor(noteId = null, prefill = {}) {
   mc.querySelector('[data-action="save-note"]')?.addEventListener('click', async () => {
     if (!localTitle.trim()) {
       titleInput?.focus();
-      titleInput?.setAttribute('placeholder', '⚠ ' + t('capturePlaceholder'));
+      titleInput?.setAttribute('placeholder', t('capturePlaceholder'));
+      titleInput?.classList.add('field-input--error');
       return;
     }
     try {
       const payload = {
-        id:        data.id,
-        title:     localTitle.trim(),
-        body:      localBody.trim(),
-        tags:      localTags,
-        links:     localLinks,
-        stage:     localStage,
-        imageData: localImage,
-        audioData: localAudio,
+        id:          data.id,
+        title:       localTitle.trim(),
+        body:        localBody.trim(),
+        tags:        localTags,
+        links:       localLinks,
+        stage:       localStage,
+        imageData:   localImage,
+        audioData:   localAudio,
+        pdfData:     localPdf,
+        pdfBookmark: localPdfMark,
       };
       if (isNew) {
         const saved = await store.saveNote(payload);
@@ -288,6 +320,15 @@ function buildHTML(data, allNotes, tagsMap, backlinks, outgoing) {
       </div>`
     : '';
 
+  const pdfSection = data.pdfData
+    ? `<div class="pdf-attached-strip" id="pdf-strip">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM14 13h1V8.5h-1V13z"/></svg>
+        <span class="pdf-strip-name">PDF allegato (pag. ${data.pdfBookmark ?? 1})</span>
+        <button class="btn btn-secondary btn-sm" data-action="open-pdf">${iconPdf({ size: 14 })} Apri</button>
+        <button class="icon-btn" data-action="remove-pdf" aria-label="Rimuovi PDF">×</button>
+      </div>`
+    : '<div id="pdf-strip"></div>';
+
   return `
     <div class="modal-header">
       <h2 class="modal-title">${data.id ? t('editorTitle') : t('captureTitle')}</h2>
@@ -324,6 +365,17 @@ function buildHTML(data, allNotes, tagsMap, backlinks, outgoing) {
       </label>
     </div>
 
+    <!-- PDF -->
+    <div class="field-group" style="margin-bottom:var(--sp-4);">
+      <span class="section-label">PDF allegato</span>
+      ${pdfSection}
+      <label class="btn btn-secondary btn-sm" style="cursor:pointer;width:fit-content;margin-top:var(--sp-2);">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM14 13h1V8.5h-1V13z"/></svg>
+        Allega PDF
+        <input type="file" id="editor-pdf-input" accept="application/pdf" style="display:none;" />
+      </label>
+    </div>
+
     <!-- Audio -->
     <div class="field-group" style="margin-bottom:var(--sp-4);">
       <span class="section-label">${t('editorAudio')}</span>
@@ -349,7 +401,7 @@ function buildHTML(data, allNotes, tagsMap, backlinks, outgoing) {
       <div class="stage-selector">
         ${['seed','sprout','mature'].map((s) => `
           <button class="stage-option ${s}${stage === s ? ' selected' : ''}" data-stage="${s}">
-            <span class="stage-emoji">${s === 'seed' ? '🌱' : s === 'sprout' ? '🌿' : '🌳'}</span>
+            <span class="stage-emoji">${STAGE_ICONS[s]({ size: 24 })}</span>
             <span class="stage-name">${t(s === 'seed' ? 'stageSeed' : s === 'sprout' ? 'stageSprout' : 'stageMature')}</span>
           </button>`).join('')}
       </div>
@@ -488,6 +540,23 @@ function showLinkSearch(mc, allNotes, excludeIds, onSelect) {
   });
   // Show all initially
   input.dispatchEvent(new Event('input'));
+}
+
+function renderPdfStrip(mc, fileName) {
+  const strip = mc.querySelector('#pdf-strip');
+  if (!strip) return;
+  if (!fileName) {
+    strip.innerHTML = '';
+    strip.className = '';
+    return;
+  }
+  strip.className = 'pdf-attached-strip';
+  strip.innerHTML = `
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM14 13h1V8.5h-1V13z"/></svg>
+    <span class="pdf-strip-name">${escHtml(fileName)}</span>
+    <button class="btn btn-secondary btn-sm" data-action="open-pdf">${iconPdf({ size: 14 })} Apri</button>
+    <button class="icon-btn" data-action="remove-pdf" aria-label="Rimuovi PDF">×</button>
+  `;
 }
 
 function escHtml(str) {

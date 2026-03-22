@@ -15,12 +15,14 @@
 }
 
 @keyframes view-out {
-  from { opacity: 1; transform: translateX(0); }
-  to   { opacity: 0; transform: translateX(-20px); }
+  from { opacity: 1; transform: translateX(0); filter: brightness(1); }
+  50%  { filter: brightness(1.3); }
+  to   { opacity: 0; transform: translateX(-20px); filter: brightness(1); }
 }
 @keyframes view-in {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateX(20px); filter: brightness(1); }
+  50%  { filter: brightness(1.3); }
+  to   { opacity: 1; transform: translateX(0); filter: brightness(1); }
 }
 
 /* ── Programmatic transitions (fallback + manual routes) ── */
@@ -78,8 +80,8 @@
 .stagger-item:nth-child(n+11) { animation-delay:400ms; }
 
 @keyframes stagger-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 /* ── Page enter (view body rows) ── */
@@ -93,7 +95,7 @@
 }
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 8px var(--glow); }
-  50%       { box-shadow: 0 0 24px var(--glow), 0 0 4px var(--accent); }
+  50%       { box-shadow: 0 0 28px var(--glow), 0 0 6px var(--accent); }
 }
 
 /* ── Spin ── */
@@ -132,7 +134,7 @@
   background: linear-gradient(
     90deg,
     var(--surface-2) 25%,
-    var(--surface-3) 50%,
+    rgba(0,240,255,0.06) 50%,
     var(--surface-2) 75%
   );
   background-size: 200% 100%;

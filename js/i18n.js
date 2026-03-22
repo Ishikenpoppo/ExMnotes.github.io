@@ -8,7 +8,7 @@ export const LANG_DICT = {
   it: {
     // App
     appName:         'ExMnotes',
-    appTagline:      'Il tuo laboratorio di mente estesa',
+    appTagline:      'La tua console neurale',
 
     // Navigation
     navHome:         'Mente',
@@ -37,7 +37,7 @@ export const LANG_DICT = {
     captureAddLink:   'Collega a una nota…',
     captureSave:      'Salva Nota',
     capturePhoto:     'Aggiungi immagine',
-    captureSaved:     'Nota salvata nella mente estesa ✦',
+    captureSaved:     'Nota salvata nella rete neurale ◆',
     captureLinked:    'Connessione creata',
     captureMaxLinks:  'Puoi collegare al massimo 10 note',
 
@@ -65,13 +65,13 @@ export const LANG_DICT = {
     reviewNextDue:    'Prossima revisione: {d}',
 
     // Stages
-    stageSeed:        'Seme',
-    stageSprout:      'Germoglio',
-    stageMature:      'Maturo',
+    stageSeed:        'Scintilla',
+    stageSprout:      'Sinapsi',
+    stageMature:      'Rete',
     stageDesc: {
-      seed:   'Pensiero appena catturato',
-      sprout: 'Concetto in elaborazione',
-      mature: 'Idea radicata e connessa',
+      seed:   'Impulso appena catturato',
+      sprout: 'Nodo in formazione sinaptica',
+      mature: 'Rete neurale consolidata',
     },
 
     // Settings
@@ -130,7 +130,7 @@ export const LANG_DICT = {
 
   en: {
     appName:         'ExMnotes',
-    appTagline:      'Your extended mind laboratory',
+    appTagline:      'Your neural console',
 
     navHome:         'Mind',
     navCapture:      'Capture',
@@ -156,7 +156,7 @@ export const LANG_DICT = {
     captureAddLink:   'Link to a note…',
     captureSave:      'Save Note',
     capturePhoto:     'Add image',
-    captureSaved:     'Note saved to extended mind ✦',
+    captureSaved:     'Note saved to neural network ◆',
     captureLinked:    'Connection created',
     captureMaxLinks:  'You can link at most 10 notes',
 
@@ -180,13 +180,13 @@ export const LANG_DICT = {
     reviewEasy:       'Easy',
     reviewNextDue:    'Next review: {d}',
 
-    stageSeed:        'Seed',
-    stageSprout:      'Sprout',
-    stageMature:      'Mature',
+    stageSeed:        'Spark',
+    stageSprout:      'Synapse',
+    stageMature:      'Network',
     stageDesc: {
-      seed:   'Freshly captured thought',
-      sprout: 'Concept being elaborated',
-      mature: 'Deep, well-connected idea',
+      seed:   'Freshly captured neural impulse',
+      sprout: 'Node forming synaptic connections',
+      mature: 'Consolidated neural network',
     },
 
     settingsTitle:    'Settings',

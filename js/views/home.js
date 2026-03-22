@@ -8,6 +8,7 @@ import * as store            from '../store.js';
 import { renderNoteCard }    from '../components/noteCard.js';
 import { openNoteEditor }    from '../components/noteEditor.js';
 import { navigate }          from '../router.js';
+import { iconSettings }      from '../components/icons.js';
 
 export function render(container) {
   container.innerHTML = loadingHTML();
@@ -50,12 +51,12 @@ function buildHTML(stats) {
   const maturePct = ((byStage.mature || 0) / total * 100).toFixed(1);
 
   const recentHTML = recentNotes.length === 0
-    ? `<p class="text-faint text-sm" style="padding:var(--sp-8) 0;text-align:center;">${t('homeNoNotes')}</p>`
+    ? `<p class="text-faint text-sm home-no-notes">${t('homeNoNotes')}</p>`
     : recentNotes.map((n) => `
-        <div class="card" style="min-width:160px;max-width:180px;flex-shrink:0;padding:var(--sp-3);" data-note-id="${n.id}">
-          <h4 class="truncate text-sm fw-semibold" style="margin-bottom:var(--sp-1);">${esc(n.title)}</h4>
+        <div class="card home-recent-card" data-note-id="${n.id}">
+          <h4 class="truncate text-sm fw-semibold">${esc(n.title)}</h4>
           ${n.body ? `<p class="text-xs text-muted clamp-2">${esc(n.body)}</p>` : ''}
-          <div style="margin-top:var(--sp-2);">
+          <div class="stage-wrap">
             <span class="stage-badge ${n.stage}">${t({ seed:'stageSeed', sprout:'stageSprout', mature:'stageMature' }[n.stage])}</span>
           </div>
         </div>`).join('');
@@ -68,7 +69,7 @@ function buildHTML(stats) {
         <h1>${getGreeting()}</h1>
       </div>
       <button class="icon-btn" data-action="open-settings" aria-label="${t('openSettings')}">
-        ${iconSettings()}
+        ${iconSettings({ size: 20 })}
       </button>
     </div>
 
@@ -83,7 +84,7 @@ function buildHTML(stats) {
       <!-- Cognitive Snapshot -->
       <div class="section stagger-item">
         <span class="section-label">${t('homeCogSnapshot')}</span>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-3);">
+        <div class="home-stats-grid">
           <div class="stat-card">
             <span class="stat-value">${totalNotes}</span>
             <span class="stat-label">${t('homeNotes')}</span>
@@ -92,8 +93,8 @@ function buildHTML(stats) {
             <span class="stat-value">${totalConnections}</span>
             <span class="stat-label">${t('homeLinks')}</span>
           </div>
-          <div class="stat-card" id="due-card" style="cursor:pointer;${dueTodayCount > 0 ? 'border-color:var(--accent);' : ''}">
-            <span class="stat-value" style="${dueTodayCount > 0 ? 'color:var(--amber);' : ''}">${dueTodayCount}</span>
+          <div class="stat-card stat-card--due${dueTodayCount > 0 ? ' has-due' : ''}" id="due-card">
+            <span class="stat-value">${dueTodayCount}</span>
             <span class="stat-label">${t('homeDueToday')}</span>
           </div>
         </div>
@@ -103,7 +104,7 @@ function buildHTML(stats) {
       ${totalNotes > 0 ? `
       <div class="section stagger-item">
         <span class="section-label">${t('homeStages')}</span>
-        <div style="display:flex;flex-direction:column;gap:var(--sp-2);">
+        <div class="home-stages-col">
           ${stageRow('seed',   byStage.seed   || 0, seedPct)}
           ${stageRow('sprout', byStage.sprout || 0, sproutPct)}
           ${stageRow('mature', byStage.mature || 0, maturePct)}
@@ -116,7 +117,7 @@ function buildHTML(stats) {
           <span class="section-label">${t('homeRecentNotes')}</span>
           <button class="btn btn-ghost btn-sm text-accent" id="btn-see-all">Tutte →</button>
         </div>
-        <div class="h-strip" style="margin:0 calc(-1 * var(--view-padding));padding:var(--sp-2) var(--view-padding);">
+        <div class="h-strip home-h-strip-bleed">
           ${recentHTML}
         </div>
       </div>
@@ -128,12 +129,12 @@ function buildHTML(stats) {
 function stageRow(stage, count, pct) {
   const color = { seed: 'var(--stage-seed)', sprout: 'var(--stage-sprout)', mature: 'var(--stage-mature)' }[stage];
   const label = t({ seed: 'stageSeed', sprout: 'stageSprout', mature: 'stageMature' }[stage]);
-  return `<div style="display:flex;align-items:center;gap:var(--sp-3);">
-    <span class="text-xs fw-medium" style="width:64px;color:${color};">${label}</span>
+  return `<div class="home-stage-row">
+    <span class="home-stage-label" style="color:${color};">${label}</span>
     <div class="progress-bar" style="flex:1;">
       <div class="progress-bar-fill" style="width:${pct}%;background:${color};"></div>
     </div>
-    <span class="text-xs text-faint" style="width:28px;text-align:right;">${count}</span>
+    <span class="home-stage-count">${count}</span>
   </div>`;
 }
 
@@ -148,12 +149,6 @@ function bindEvents(container, stats) {
   container.querySelectorAll('[data-note-id]').forEach((card) => {
     card.addEventListener('click', () => openNoteEditor(card.dataset.noteId));
   });
-}
-
-function iconSettings() {
-  return `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-    <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-  </svg>`;
 }
 
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
