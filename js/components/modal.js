@@ -15,6 +15,32 @@ const handle   = document.getElementById('modal-handle');
 const settingsOverlay = document.getElementById('settings-overlay');
 const settingsContent  = document.getElementById('settings-content');
 
+/* ── History integration ── */
+let _modalHistoryCount = 0;   // how many modal-states are on the history stack
+let _closingFromPopstate = false; // guard: true when popstate is closing the modal
+
+/**
+ * Returns true if any modal overlay is currently open.
+ */
+export function isModalOpen() {
+  return overlay.classList.contains('open') ||
+         settingsOverlay.classList.contains('open');
+}
+
+/**
+ * Called by the router's popstate handler when a modal is open.
+ * Closes the top-most modal WITHOUT calling history.back() again.
+ */
+export function closeModalFromBack() {
+  _closingFromPopstate = true;
+  if (overlay.classList.contains('open')) {
+    closeOverlay(overlay, drawer);
+  } else if (settingsOverlay.classList.contains('open')) {
+    closeOverlay(settingsOverlay, settingsOverlay.querySelector('.modal-drawer'));
+  }
+  _closingFromPopstate = false;
+}
+
 /* ── Drag to close ── */
 let startY = 0;
 let dragging = false;
@@ -55,13 +81,27 @@ function openOverlay(overlayEl) {
   overlayEl.setAttribute('aria-hidden', 'false');
   overlayEl.classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  // Push a history entry so the back button can close this modal
+  history.pushState({ modal: true }, '');
+  _modalHistoryCount++;
 }
 
 export function closeOverlay(overlayEl, drawerEl) {
+  const wasOpen = overlayEl.classList.contains('open');
   overlayEl.classList.remove('open');
   overlayEl.setAttribute('aria-hidden', 'true');
   if (drawerEl) drawerEl.style.transform = '';
   document.body.style.overflow = '';
+
+  // If the modal was open and we're NOT being closed by popstate,
+  // pop the history entry we pushed on open.
+  if (wasOpen && !_closingFromPopstate && _modalHistoryCount > 0) {
+    _modalHistoryCount--;
+    history.back();
+  } else if (_closingFromPopstate && _modalHistoryCount > 0) {
+    _modalHistoryCount--;
+  }
 }
 
 // Click outside to close
